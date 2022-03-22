@@ -337,6 +337,42 @@ void filesearch(char *fileName){
 	}
 
 }
+void filesearch_recursive(char *fileName,char* path){
+
+        DIR *d;
+        struct dirent *dir;
+        d = opendir(path);
+        char buf[100];
+	char nextPath[100];
+	struct stat statbuf;
+
+	if(!d){
+		return;
+	}
+        if (d) {
+                while ((dir = readdir(d)) != NULL) {
+
+                        realpath(dir->d_name, buf);
+
+			stat(buf , &statbuf);
+			
+			if(strstr(buf, fileName)){
+                                printf("%s \n",buf);
+				
+                        }
+                        if(S_ISDIR(statbuf.st_mode) && strcmp(dir -> d_name, "..") != 0 && strcmp(dir -> d_name, ".") != 0){
+				
+			strcpy(nextPath, path);
+            		strcat(nextPath, "/");
+           		strcat(nextPath, dir->d_name);
+			filesearch_recursive(fileName, nextPath);
+				
+			}
+                }
+                closedir(d);
+        }
+
+}
 
 
 
@@ -388,107 +424,24 @@ int process_command(struct command_t *command)
 	// TODO: Implement your custom commands here
 
 	if(strcmp("filesearch",command -> args[0]) == 0){
-		DIR *d;
-		struct dirent *dir;
-		d = opendir(".");
-		char buf[100];
-
-		char directories[50][100];
-
-		struct stat statbuf;
-
-
-		int i = 0;
-
-		int j = 0;
-
-
-		//		printf("%s \n" ,command -> args[2]);
-
-		//              printf("napssfdsfd");
 
 
 		if(command -> arg_count >= 3){	
 
-			//			strcpy(directories[0], ".");
-
-
-
 			if(strcmp(command -> args[2],"-r") == 0){
-				if (d) {
-					while ((dir = readdir(d)) != NULL) {
 
-						realpath(dir->d_name, buf);
-
-						stat(buf , &statbuf);
-
-						if(S_ISDIR(statbuf.st_mode)){
-
-							strcpy(directories[i], dir -> d_name);
-							i++;
-						}
-
-					}
-					closedir(d);
-				}
-
+				filesearch_recursive(command -> args[1],"." );
 			}
 
-
-
 		}	
-
-
-		if(command -> arg_count >= 3){
-
-			j = i;
-		}
 		else{
-			j = 1;
-		}	
-
-		//              for(i = 0; i < j; i++){
-		//       		printf("%s\n", directories[i]);
-		//		}
-
-		for(i = 0; i < j; i++){
-
-			char s[100];
-
-			if(command -> arg_count >= 3){
-				d = opendir(directories[i]);
-
-				//         	  chdir(directories[i]);
-
-				//              d = opendir(".");
-
-			}
-			else{
-
-				d = opendir(".");
-			}
-
-			if (d) {
-				while ((dir = readdir(d)) != NULL) {
-
-					realpath(dir->d_name, buf);
-					if(command -> arg_count >= 1){
-						if(strstr(buf, command -> args[1])){
-							printf("%s\n",buf);
-				
-				//					printf("%s/%s\n",getcwd(s,100),dir -> d_name);
-						}
-					}
-				}
-				closedir(d);
-
-
-
-
-				//		filesearch(command -> args[1]);
-			}
+			
+			filesearch(command -> args[1]);
 		}
+
+
 	}
+
 	//	char s[100];
 	//Printing the current working directory
 	//	printf("%s\n",getcwd(s,100));
@@ -582,9 +535,6 @@ int process_command(struct command_t *command)
 			}
 			printf("%d %d %d %d %d \n", butters, kenny, cartman, stan, kyle);
 
-
-
-
 		}
 
 
@@ -615,14 +565,6 @@ int process_command(struct command_t *command)
 					chdir(folders[i - 1]);
 				}
 
-				//				printf( "%s\n %s \n %s \n",name, command -> args[0], folders[i]);
-
-				//				execl("/bin/mkdir", "mkdir" , folders[i], NULL);
-
-
-
-
-
 				pid = fork();
 
 				if(pid == 0){	
@@ -631,22 +573,13 @@ int process_command(struct command_t *command)
 
 
 				}
-				//				else{
-				//                                        execl("/bin/cd", "cd" , folders[i], NULL);
-
-				//				}
-
-
 
 			}
 
 		}
 		else{
 
-			//			printf( "%s \n %s \n %s \n",name, command -> args[1], folders[i]);
-
 			execl(name, command -> args[1] , flag, NULL);
-			//                        execl("/bin/cd", "cd", "A", NULL);
 
 
 		}
@@ -654,6 +587,10 @@ int process_command(struct command_t *command)
 		exit(0);
 	}
 	else{
+	
+		//program can be executed in background with a & at the end of command line, but then
+		//the shell writings cannot be seenn but still program produces correct output
+		//with given input
 		if(!command -> background)
 			wait(NULL);
 		
