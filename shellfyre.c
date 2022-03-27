@@ -465,7 +465,14 @@ int process_command(struct command_t *command)
 	
                 if(isFull){
 
-                        tmpHead--;
+                        if(tmpHead == 0){
+                                tmpHead = 9;
+                        }
+                        else{
+                                tmpHead--;
+                        }
+
+                       
 			
 			if(tmpTail == 0){
 				tmpTail = 9;
