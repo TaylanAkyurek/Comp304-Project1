@@ -11,6 +11,10 @@
 #include <errno.h>
 const char *sysname = "shellfyre";
 
+int head = 0;
+int tail = 0;
+bool isFull = false;
+
 enum return_codes
 {
 	SUCCESS = 0,
@@ -404,6 +408,9 @@ int main()
 int process_command(struct command_t *command)
 {
 	int r;
+	char recentlyVisitedPaths[30][100];
+	
+
 	if (strcmp(command->name, "") == 0)
 		return SUCCESS;
 
@@ -415,6 +422,33 @@ int process_command(struct command_t *command)
 		if (command->arg_count > 0)
 		{
 			r = chdir(command->args[0]);
+			
+			strcpy(recentlyVisitedPaths[tail], command->args[0]);
+			
+			printf("tail %d head %d\n", tail, head);
+			
+			tail++;
+
+			
+			if(tail == 10){
+				tail = 0;
+				isFull = true;	
+			}
+			
+                        if(isFull){
+
+                                if(head == 9){
+
+                                        head = 0;
+                                }
+                                else{
+
+                                        head++;
+                                }
+                        }
+	                        
+                        printf("tail %d head %d\n", tail, head);
+
 			if (r == -1)
 				printf("-%s: %s: %s\n", sysname, command->name, strerror(errno));
 			return SUCCESS;
@@ -423,20 +457,62 @@ int process_command(struct command_t *command)
 
 	// TODO: Implement your custom commands here
 
-	if(strcmp("filesearch",command -> args[0]) == 0){
+	if(strcmp("cdh",command -> args[0]) == 0){
+
+                        
+		int tmpHead = head;
+		int tmpTail = tail;
+	
+                if(isFull){
+
+                        tmpHead--;
+			
+			if(tmpTail == 0){
+				tmpTail = 9;
+			}
+			else{
+				tmpTail--;
+			}
+                }
+
+		while(tmpHead != tmpTail){
+		
+			
+			printf("%s\n",recentlyVisitedPaths[tmpHead]);
+        		
+			tmpHead++;		
+       
+			if(tmpHead == 10)
+                                tmpHead = 0;
+	
+		}
+		if(isFull){
+
+			if(tmpTail == 0){
+                	        printf("%s\n",recentlyVisitedPaths[tmpTail]);
+			}
+			else{
+                                printf("%s\n",recentlyVisitedPaths[tmpTail]);
+
+			}
+		}
+	  }	
 
 
-		if(command -> arg_count >= 3){	
+	if(strcmp("filesearch",command -> name) == 0){
 
-			if(strcmp(command -> args[2],"-r") == 0){
 
-				filesearch_recursive(command -> args[1],"." );
+		if(command -> arg_count >= 2){	
+
+			if(strcmp(command -> args[1],"-r") == 0){
+
+				filesearch_recursive(command -> args[0],"." );
 			}
 
 		}	
 		else{
 			
-			filesearch(command -> args[1]);
+			filesearch(command -> args[0]);
 		}
 
 
@@ -578,8 +654,16 @@ int process_command(struct command_t *command)
 
 		}
 		else{
+			
+			
+			
+//			printf("napss %d %s %s %s",command -> arg_count,command -> name,command -> args[0],command -> args[1] );
+			
 
-			execl(name, command -> args[1] , flag, NULL);
+			
+			execl(name, command -> args[1], flag, NULL);
+
+
 
 
 		}
