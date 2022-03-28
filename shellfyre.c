@@ -365,9 +365,6 @@ void filesearch_recursive(char *fileName,char* path){
 				
 	                        buf[strlen(buf) - (strlen(dir -> d_name) +1)] = '\0';
 	                        strcat(buf, &path[1]);
-
-//				buf[strlen(buf) - 2] = '\0';
-				
 				strcat(buf, "/");
         	                strcat(buf, dir -> d_name);
 	
@@ -419,7 +416,7 @@ int process_command(struct command_t *command)
 {
 	int r;
 	char recentlyVisitedPaths[30][100];
-	
+		
 
 	if (strcmp(command->name, "") == 0)
 		return SUCCESS;
@@ -474,14 +471,17 @@ int process_command(struct command_t *command)
 	}
 
 	// TODO: Implement your custom commands here
+	
 
-	if(strcmp("cdh",command -> args[0]) == 0){
+	bool isCdh = false;
+
+	if(strcmp("cdh",command -> name) == 0){
 
                 int i = 1;
 		char ind = 'a';
 		int tmpHead = head;
 		int tmpTail = tail;
-	        
+	        isCdh = true;
 	
                 if(isFull){
 
@@ -567,9 +567,9 @@ int process_command(struct command_t *command)
 	char prefix[10] = "/bin/";
 	char *flag;
 	const char *name;
-	if (command -> arg_count >= 2){
+	if (command -> arg_count >=1){
 
-		flag = command -> args[1];
+		flag = command -> args[0];
 
 	}
 	else{
@@ -579,11 +579,11 @@ int process_command(struct command_t *command)
 
 	bool isTake = false;
 
-	if(strcmp(command -> args[0], "take") == 0){
+	if(strcmp(command -> name, "take") == 0){
 		isTake = true;
 	}
 
-	name = strcat(prefix, command -> args[0]);
+	name = strcat(prefix, command -> name);
 
 
 	if (pid == 0) // child
@@ -603,7 +603,7 @@ int process_command(struct command_t *command)
 
 		/// TODO: do your own exec with path resolving using execv()
 
-		if(strcmp("southpark",command -> args[1]) == 0){
+		if(strcmp("southpark",command -> args[0]) == 0){
 
 			int kyle = 0;
                         int stan = 0;
@@ -685,6 +685,15 @@ int process_command(struct command_t *command)
 			}
 
 		}
+		else if(isCdh){
+
+			char directory;
+			printf("select a letter or a number to navigate: ");
+			scanf("%s", &directory);
+			
+
+
+		}
 		else{
 			
 			
@@ -693,7 +702,7 @@ int process_command(struct command_t *command)
 			
 
 			
-			execl(name, command -> args[1], flag, NULL);
+			execl(name, command -> args[0], flag, NULL);
 
 
 
