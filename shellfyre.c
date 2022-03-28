@@ -345,7 +345,8 @@ void filesearch_recursive(char *fileName,char* path){
 
         DIR *d;
         struct dirent *dir;
-        d = opendir(path);
+//	chdir(path);
+	d = opendir(path);
         char buf[100];
 	char nextPath[100];
 	struct stat statbuf;
@@ -357,11 +358,20 @@ void filesearch_recursive(char *fileName,char* path){
                 while ((dir = readdir(d)) != NULL) {
 
                         realpath(dir->d_name, buf);
-
 			stat(buf , &statbuf);
 			
 			if(strstr(buf, fileName)){
-                                printf("%s \n",buf);
+
+				
+	                        buf[strlen(buf) - (strlen(dir -> d_name) +1)] = '\0';
+	                        strcat(buf, &path[1]);
+
+//				buf[strlen(buf) - 2] = '\0';
+				
+				strcat(buf, "/");
+        	                strcat(buf, dir -> d_name);
+	
+                                printf("%s\n",buf);
 				
                         }
                         if(S_ISDIR(statbuf.st_mode) && strcmp(dir -> d_name, "..") != 0 && strcmp(dir -> d_name, ".") != 0){
@@ -419,11 +429,19 @@ int process_command(struct command_t *command)
 
 	if (strcmp(command->name, "cd") == 0)
 	{
+                char buf[100];
+
 		if (command->arg_count > 0)
 		{
-			r = chdir(command->args[0]);
 			
-			strcpy(recentlyVisitedPaths[tail], command->args[0]);
+                        realpath(command->args[0], buf);
+
+
+                        strcpy(recentlyVisitedPaths[tail], buf);
+
+			
+			r = chdir(command->args[0]);
+
 			
 			printf("tail %d head %d\n", tail, head);
 			
@@ -459,9 +477,11 @@ int process_command(struct command_t *command)
 
 	if(strcmp("cdh",command -> args[0]) == 0){
 
-                        
+                int i = 1;
+		char ind = 'a';
 		int tmpHead = head;
 		int tmpTail = tail;
+	        
 	
                 if(isFull){
 
@@ -485,8 +505,8 @@ int process_command(struct command_t *command)
 		while(tmpHead != tmpTail){
 		
 			
-			printf("%s\n",recentlyVisitedPaths[tmpHead]);
-        		
+			printf("%c %d) %s\n",ind++, i++, recentlyVisitedPaths[tmpHead]);
+				
 			tmpHead++;		
        
 			if(tmpHead == 10)
@@ -496,14 +516,19 @@ int process_command(struct command_t *command)
 		if(isFull){
 
 			if(tmpTail == 0){
-                	        printf("%s\n",recentlyVisitedPaths[tmpTail]);
+                	        printf("j 10) %s\n",recentlyVisitedPaths[tmpTail]);
 			}
 			else{
-                                printf("%s\n",recentlyVisitedPaths[tmpTail]);
+                                printf("j 10) %s\n",recentlyVisitedPaths[tmpTail]);
 
 			}
 		}
+		
+//		realpath(recentlyVisitedPaths[2], buf);
+//              chdir(buf);
+
 	  }	
+
 
 
 	if(strcmp("filesearch",command -> name) == 0){
