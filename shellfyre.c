@@ -9,7 +9,13 @@
 #include <string.h>
 #include <stdbool.h>
 #include <errno.h>
+#include <ctype.h>
+
 const char *sysname = "shellfyre";
+#define BUFFER_SIZE 50
+#define READ_END 0
+#define WRITE_END 1
+
 
 int head = 0;
 int tail = 0;
@@ -471,6 +477,17 @@ int process_command(struct command_t *command)
 	}
 
 	// TODO: Implement your custom commands here
+	char write_msg[BUFFER_SIZE];
+	char read_msg[BUFFER_SIZE];
+
+	int fd[2];
+
+
+	if(pipe(fd) == -1)
+	{
+		printf("Pipe fail");
+		return 1;
+	}
 	
 
 	bool isCdh = false;
@@ -524,10 +541,11 @@ int process_command(struct command_t *command)
 			}
 		}
 		
-//		realpath(recentlyVisitedPaths[2], buf);
-//              chdir(buf);
 
-	  }	
+		//		realpath(recentlyVisitedPaths[2], buf);
+		//              chdir(buf);
+
+	}	
 
 
 
@@ -543,7 +561,7 @@ int process_command(struct command_t *command)
 
 		}	
 		else{
-			
+
 			filesearch(command -> args[0]);
 		}
 
@@ -606,20 +624,20 @@ int process_command(struct command_t *command)
 		if(strcmp("southpark",command -> args[0]) == 0){
 
 			int kyle = 0;
-                        int stan = 0;
-                        int cartman = 0;
-                        int kenny = 0;
-                        int butters = 0;
+			int stan = 0;
+			int cartman = 0;
+			int kenny = 0;
+			int butters = 0;
 			int choice;
-			
+
 			printf("Which south park character you are test has started.\n");		    
 			printf("Which describes you most?\n");
-                        printf("1)I am senstive\n");
-                        printf("2)i am clumsy\n");
-                        printf("3)I like money and don’t care how to obtain\n");
-                        printf("4)I care about love\n");
-                        printf("5)I should keep my grades high\n");
-                        printf("your choice: ");
+			printf("1)I am senstive\n");
+			printf("2)i am clumsy\n");
+			printf("3)I like money and don’t care how to obtain\n");
+			printf("4)I care about love\n");
+			printf("5)I should keep my grades high\n");
+			printf("your choice: ");
 			scanf("%d", &choice);
 			switch(choice){
 
@@ -639,7 +657,7 @@ int process_command(struct command_t *command)
 					kyle++;
 					break;
 
-				
+
 			}
 			printf("%d %d %d %d %d \n", butters, kenny, cartman, stan, kyle);
 
@@ -685,26 +703,60 @@ int process_command(struct command_t *command)
 			}
 
 		}
-		else if(isCdh){
-
-			char directory;
-			printf("select a letter or a number to navigate: ");
-			scanf("%s", &directory);
-			
-
-
-		}
 		else{
-			
-			
-			
-//			printf("napss %d %s %s %s",command -> arg_count,command -> name,command -> args[0],command -> args[1] );
-			
 
-			
+
+
+			//			printf("napss %d %s %s %s",command -> arg_count,command -> name,command -> args[0],command -> args[1] );
+
+
+
 			execl(name, command -> args[0], flag, NULL);
 
 
+
+
+		}
+                if(strcmp(command -> name, "cdh") == 0){
+
+			char directory[10];
+			printf("select a letter or a number to navigate: ");
+			scanf("%s", directory);
+			int tmpHead = head;
+			int index;
+			
+			if(isdigit(directory[0]) != 0){
+			
+				index = atoi(directory);
+			}
+			else{
+				
+				index = directory[0] - 96;
+			}
+
+			printf("%d\n", index);
+
+			if(isFull){
+
+				if(tmpHead == 0){
+					tmpHead = 9;
+				}
+				else{
+					tmpHead--;
+				}
+			}
+			for(int i = 0; i < (index - 1); i++){
+
+
+				tmpHead++;
+
+				if(tmpHead == 10)
+					tmpHead = 0;
+
+			}
+
+
+			printf("%s\n",recentlyVisitedPaths[tmpHead]);
 
 
 		}
@@ -712,13 +764,17 @@ int process_command(struct command_t *command)
 		exit(0);
 	}
 	else{
-	
-		//program can be executed in background with a & at the end of command line, but then
+
+		//program can be executed in background with a & at the end of command line, but then		
 		//the shell writings cannot be seenn but still program produces correct output
 		//with given input
+
+		//	if(strcmp(command -> name, "cdh") == 0)
+		//		printf("%s\n",recentlyVisitedPaths[4]);
+
 		if(!command -> background)
 			wait(NULL);
-		
+
 		return SUCCESS;
 	}
 
