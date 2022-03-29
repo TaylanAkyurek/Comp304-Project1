@@ -432,44 +432,52 @@ int process_command(struct command_t *command)
 
 	if (strcmp(command->name, "cd") == 0)
 	{
-                char buf[100];
+		char buf[100];
+                char s[100];
+        //Printing the current working directory
+                getcwd(s,100);
+               
+		r = chdir(command->args[0]);
 
-		if (command->arg_count > 0)
+
+
+		if (command->arg_count > 0 && r != -1)
 		{
 			
-                        realpath(command->args[0], buf);
+			r = chdir (s);
+
+			realpath(command->args[0], buf);
 
 
-                        strcpy(recentlyVisitedPaths[tail], buf);
+			strcpy(recentlyVisitedPaths[tail], buf);
 
-			
+
 			r = chdir(command->args[0]);
 
-			
+
 			printf("tail %d head %d\n", tail, head);
-			
+
 			tail++;
 
-			
+
 			if(tail == 10){
 				tail = 0;
 				isFull = true;	
 			}
-			
-                        if(isFull){
 
-                                if(head == 9){
+			if(isFull){
 
-                                        head = 0;
-                                }
-                                else{
+				if(head == 9){
 
-                                        head++;
-                                }
-                        }
-	                        
-                        printf("tail %d head %d\n", tail, head);
+					head = 0;
+				}
+				else{
 
+					head++;
+				}
+			}
+
+			printf("tail %d head %d\n", tail, head);
 			if (r == -1)
 				printf("-%s: %s: %s\n", sysname, command->name, strerror(errno));
 			return SUCCESS;
@@ -488,59 +496,59 @@ int process_command(struct command_t *command)
 		printf("Pipe fail");
 		return 1;
 	}
-	
+
 
 	bool isCdh = false;
 
 	if(strcmp("cdh",command -> name) == 0){
 
-                int i = 1;
+		int i = 1;
 		char ind = 'a';
 		int tmpHead = head;
 		int tmpTail = tail;
-	        isCdh = true;
-	
-                if(isFull){
+		isCdh = true;
 
-                        if(tmpHead == 0){
-                                tmpHead = 9;
-                        }
-                        else{
-                                tmpHead--;
-                        }
+		if(isFull){
 
-                       
-			
+			if(tmpHead == 0){
+				tmpHead = 9;
+			}
+			else{
+				tmpHead--;
+			}
+
+
+
 			if(tmpTail == 0){
 				tmpTail = 9;
 			}
 			else{
 				tmpTail--;
 			}
-                }
+		}
 
 		while(tmpHead != tmpTail){
-		
-			
+
+
 			printf("%c %d) %s\n",ind++, i++, recentlyVisitedPaths[tmpHead]);
-				
+
 			tmpHead++;		
-       
+
 			if(tmpHead == 10)
-                                tmpHead = 0;
-	
+				tmpHead = 0;
+
 		}
 		if(isFull){
 
 			if(tmpTail == 0){
-                	        printf("j 10) %s\n",recentlyVisitedPaths[tmpTail]);
+				printf("j 10) %s\n",recentlyVisitedPaths[tmpTail]);
 			}
 			else{
-                                printf("j 10) %s\n",recentlyVisitedPaths[tmpTail]);
+				printf("j 10) %s\n",recentlyVisitedPaths[tmpTail]);
 
 			}
 		}
-		
+
 
 		//		realpath(recentlyVisitedPaths[2], buf);
 		//              chdir(buf);
@@ -717,20 +725,20 @@ int process_command(struct command_t *command)
 
 
 		}
-                if(strcmp(command -> name, "cdh") == 0){
+		if(strcmp(command -> name, "cdh") == 0){
 
 			char directory[10];
 			printf("select a letter or a number to navigate: ");
 			scanf("%s", directory);
 			int tmpHead = head;
 			int index;
-			
+
 			if(isdigit(directory[0]) != 0){
-			
+
 				index = atoi(directory);
 			}
 			else{
-				
+
 				index = directory[0] - 96;
 			}
 
@@ -756,8 +764,8 @@ int process_command(struct command_t *command)
 			}
 
 
-//			printf("%s\n",recentlyVisitedPaths[tmpHead]);
-			
+			//			printf("%s\n",recentlyVisitedPaths[tmpHead]);
+
 			strcpy(write_msg, recentlyVisitedPaths[tmpHead]);
 			close(fd[READ_END]);
 			write(fd[WRITE_END], write_msg, strlen(write_msg) + 1);
@@ -782,11 +790,11 @@ int process_command(struct command_t *command)
 
 			close(fd[READ_END]);
 
-			for(int i = 0; i < 30; i++){
-				
-				chdir("..");
+//			for(int i = 0; i < 30; i++){
 
-			}
+//				chdir("..");
+
+//			}
 			chdir(read_msg);
 
 		}
