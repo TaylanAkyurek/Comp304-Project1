@@ -12,7 +12,7 @@
 #include <ctype.h>
 
 const char *sysname = "shellfyre";
-#define BUFFER_SIZE 50
+#define BUFFER_SIZE 100
 #define READ_END 0
 #define WRITE_END 1
 
@@ -756,7 +756,12 @@ int process_command(struct command_t *command)
 			}
 
 
-			printf("%s\n",recentlyVisitedPaths[tmpHead]);
+//			printf("%s\n",recentlyVisitedPaths[tmpHead]);
+			
+			strcpy(write_msg, recentlyVisitedPaths[tmpHead]);
+			close(fd[READ_END]);
+			write(fd[WRITE_END], write_msg, strlen(write_msg) + 1);
+			close(fd[WRITE_END]);
 
 
 		}
@@ -769,8 +774,25 @@ int process_command(struct command_t *command)
 		//the shell writings cannot be seenn but still program produces correct output
 		//with given input
 
-		//	if(strcmp(command -> name, "cdh") == 0)
-		//		printf("%s\n",recentlyVisitedPaths[4]);
+		if(strcmp(command -> name, "cdh") == 0){
+			close(fd[WRITE_END]);
+
+
+			read(fd[READ_END], read_msg, BUFFER_SIZE);
+
+			close(fd[READ_END]);
+
+			for(int i = 0; i < 30; i++){
+				
+				chdir("..");
+
+			}
+			chdir(read_msg);
+
+		}
+
+
+
 
 		if(!command -> background)
 			wait(NULL);
