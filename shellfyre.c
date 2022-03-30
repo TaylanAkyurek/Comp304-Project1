@@ -20,7 +20,7 @@ const char *sysname = "shellfyre";
 int head = 0;
 int tail = 0;
 bool isFull = false;
-
+bool isLoadedd = false;
 enum return_codes
 {
 	SUCCESS = 0,
@@ -498,16 +498,59 @@ int process_command(struct command_t *command)
 	}
 
 
-	bool isCdh = false;
+	if(strcmp("loadpaths", command -> name) == 0){
+		
+		char line[1000];
+                FILE *file;
+                file = fopen("visitedPaths.txt", "r");
+		int j = 0;
 
-	if(strcmp("cdh",command -> name) == 0){
+		if(!file){
+			return 1;
+		}
 
-		int i = 1;
-		char ind = 'a';
+		while (fgets(line,1000, file)!=NULL){
+			
+			line[strlen(line) -1] = '\0';
+			strcpy(recentlyVisitedPaths[j], line);
+			
+                        printf("%d", j);
+                        printf("%s\n", recentlyVisitedPaths[j]);
+
+			j++;
+		}
+		head = 0;
+		tail = j;
+
+		
+		if(j == 10){
+				
+			tail = 0;
+			isFull = true;
+
+		}
+		if(isFull){
+
+			if(head == 9){
+
+				head = 0;
+			}
+			else{
+
+				head++;
+			}
+		}
+
+	}
+
+	if(strcmp("savepaths", command -> name) == 0){
+		FILE *file;
+		file = fopen("visitedPaths.txt", "w");
+
 		int tmpHead = head;
 		int tmpTail = tail;
-		isCdh = true;
 
+		char pathForFile[100];
 		if(isFull){
 
 			if(tmpHead == 0){
@@ -529,8 +572,79 @@ int process_command(struct command_t *command)
 
 		while(tmpHead != tmpTail){
 
+			strcpy(pathForFile,recentlyVisitedPaths[tmpHead]);
+			strcat(pathForFile, "\n");
+
+			printf("%s", pathForFile);
+			fputs(pathForFile, file);
+			tmpHead++;
+
+			if(tmpHead == 10)
+				tmpHead = 0;
+
+		}
+		strcpy(pathForFile,recentlyVisitedPaths[tmpHead]);
+		strcat(pathForFile, "\n");
+
+		if(isFull){
+
+			printf("%s", pathForFile);
+
+			fputs(pathForFile, file);
+
+
+
+		}
+
+
+		fclose(file);
+
+	}
+
+
+	bool isCdh = false;
+
+	if(strcmp("cdh",command -> name) == 0){
+
+		//		FILE *file;
+		//		file = fopen("visitedPaths.txt", "w");
+
+		int i = 1;
+		char ind = 'a';
+		int tmpHead = head;
+		int tmpTail = tail;
+		isCdh = true;
+
+		//		char pathForFile[100];
+		if(isFull){
+
+			if(tmpHead == 0){
+				tmpHead = 9;
+			}
+			else{
+				tmpHead--;
+			}
+
+
+
+			if(tmpTail == 0){
+				tmpTail = 9;
+			}
+			else{
+				tmpTail--;
+			}
+		}
+
+		printf("tmphead =%d tmptail = %d\n",tmpHead,tmpTail);
+		while(tmpHead != tmpTail){
+
 
 			printf("%c %d) %s\n",ind++, i++, recentlyVisitedPaths[tmpHead]);
+
+			//			strcpy(pathForFile,recentlyVisitedPaths[tmpHead]);
+			//			strcat(pathForFile, "\n");
+
+			//			fputs(pathForFile, file);
 
 			tmpHead++;		
 
@@ -550,9 +664,7 @@ int process_command(struct command_t *command)
 		}
 
 
-		//		realpath(recentlyVisitedPaths[2], buf);
-		//              chdir(buf);
-
+		//		fclose(file);
 	}	
 
 
@@ -790,11 +902,11 @@ int process_command(struct command_t *command)
 
 			close(fd[READ_END]);
 
-//			for(int i = 0; i < 30; i++){
+			//			for(int i = 0; i < 30; i++){
 
-//				chdir("..");
+			//				chdir("..");
 
-//			}
+			//			}
 			chdir(read_msg);
 
 		}
