@@ -1,3 +1,4 @@
+
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h> 
@@ -337,8 +338,7 @@ void filesearch(char *fileName, char paths[100][100], int *n){
 	struct dirent *dir;
 	d = opendir(".");
 	char buf[100];
-	int i = 1;
-	strcpy(paths[0],"/bin/xdg-open");
+	int i = 0;
 
 	if (d) {
 		while ((dir = readdir(d)) != NULL) {
@@ -355,7 +355,7 @@ void filesearch(char *fileName, char paths[100][100], int *n){
 	}
 	//        paths[i] = NULL;
 
-	*n = i+1;
+	*n = i;
 
 }
 
@@ -403,7 +403,59 @@ void filesearch_recursive(char *fileName,char* path){
 
 }
 
+void saveDir(char arg[], char recentlyVisitedPaths[][100]){
+	char buf[100];
+	char s[100];
+	//Printing the current working directory
+	getcwd(s,100);
+	int r;
+	r = chdir(arg);
 
+
+
+	if (r != -1)
+	{
+
+		r = chdir (s);
+
+		realpath(arg, buf);
+
+
+		strcpy(recentlyVisitedPaths[tail], buf);
+
+
+		r = chdir(arg);
+
+
+		printf("tail %d head %d\n", tail, head);
+
+		tail++;
+
+
+		if(tail == 10){
+			tail = 0;
+			isFull = true;	
+		}
+
+		if(isFull){
+
+			if(head == 9){
+
+				head = 0;
+			}
+			else{
+
+				head++;
+			}
+		}
+
+		printf("tail %d head %d\n", tail, head);
+	//	if (r == -1)
+	//		printf("-%s: %s: %s\n", sysname, command->name, strerror(errno));
+	//	return SUCCESS;
+	}
+
+}
 
 int process_command(struct command_t *command);
 
@@ -434,9 +486,9 @@ int process_command(struct command_t *command)
 {
 	int r;
 	char recentlyVisitedPaths[30][100];
-	
+
 	if(isStarted){
-		
+
 		char line[1000];
 		FILE *file;
 		file = fopen("visitedPaths.txt", "r");
@@ -451,8 +503,8 @@ int process_command(struct command_t *command)
 			line[strlen(line) -1] = '\0';
 			strcpy(recentlyVisitedPaths[j], line);
 
-//			printf("%d", j);
-//			printf("%s\n", recentlyVisitedPaths[j]);
+			//			printf("%d", j);
+			//			printf("%s\n", recentlyVisitedPaths[j]);
 
 			j++;
 		}
@@ -486,62 +538,63 @@ int process_command(struct command_t *command)
 	if (strcmp(command->name, "") == 0)
 		return SUCCESS;
 
-//	if (strcmp(command->name, "exit") == 0){
+	//	if (strcmp(command->name, "exit") == 0){
 
-//		return EXIT;
-//	}
+	//		return EXIT;
+	//	}
 	if (strcmp(command->name, "cd") == 0)
 	{
-		char buf[100];
-		char s[100];
+		saveDir(command -> args[0], recentlyVisitedPaths);
+	//	char buf[100];
+	//	char s[100];
 		//Printing the current working directory
-		getcwd(s,100);
+	//	getcwd(s,100);
 
-		r = chdir(command->args[0]);
-
-
-
-		if (command->arg_count > 0 && r != -1)
-		{
-
-			r = chdir (s);
-
-			realpath(command->args[0], buf);
+	//	r = chdir(command->args[0]);
 
 
-			strcpy(recentlyVisitedPaths[tail], buf);
+
+	//	if (command->arg_count > 0 && r != -1)
+	//	{
+
+	//		r = chdir (s);
+
+	//		realpath(command->args[0], buf);
 
 
-			r = chdir(command->args[0]);
+//			strcpy(recentlyVisitedPaths[tail], buf);
 
 
-			printf("tail %d head %d\n", tail, head);
-
-			tail++;
+//			r = chdir(command->args[0]);
 
 
-			if(tail == 10){
-				tail = 0;
-				isFull = true;	
-			}
+//			printf("tail %d head %d\n", tail, head);
 
-			if(isFull){
+//			tail++;
 
-				if(head == 9){
 
-					head = 0;
-				}
-				else{
+//			if(tail == 10){
+//				tail = 0;
+//				isFull = true;	
+//			}
 
-					head++;
-				}
-			}
+//			if(isFull){
 
-			printf("tail %d head %d\n", tail, head);
-			if (r == -1)
-				printf("-%s: %s: %s\n", sysname, command->name, strerror(errno));
-						return SUCCESS;
-		}
+//				if(head == 9){
+
+//					head = 0;
+//				}
+//				else{
+
+//					head++;
+//				}
+//			}
+
+//			printf("tail %d head %d\n", tail, head);
+//			if (r == -1)
+//				printf("-%s: %s: %s\n", sysname, command->name, strerror(errno));
+//			return SUCCESS;
+//		}
 	}
 
 	// TODO: Implement your custom commands here
@@ -556,80 +609,95 @@ int process_command(struct command_t *command)
 		printf("Pipe fail");
 		return 1;
 	}
-	
+
 	char joke[200];
-	if(strcmp("joker", command -> name) == 0){
-		FILE *fp;
-		char path[1035];
+	//	if(strcmp("joker", command -> name) == 0){
 
-		/* Open the command for reading. */
-		fp = popen("/snap/bin/curl https://icanhazdadjoke.com/", "r");
-		if (fp == NULL) {
-			printf("Failed to run command\n" );
-			exit(1);
-		}
+	//		FILE *fp;
+	//		char path[1035];
 
-		/* Read the output a line at a time - output it. */
-		fgets(path, sizeof(path), fp);
-//			printf("%s\n", path);
-		strcpy(joke, path);
+	/* Open the command for reading. */
+	//		fp = popen("/snap/bin/curl https://icanhazdadjoke.com/", "r");
+	//		if (fp == NULL) {
+	//			printf("Failed to run command\n" );
+	//			exit(1);
+	//		}
 
-		/* close */
-		pclose(fp);
-	}
+	/* Read the output a line at a time - output it. */
+	//		fgets(path, sizeof(path), fp);
+	//			printf("%s\n", path);
+	//		strcpy(joke, path);
 
-
-		printf("%s\n", joke);
-
-//	if(strcmp("loadpaths", command -> name) == 0){
-
-//		char line[1000];
-//		FILE *file;
-//		file = fopen("visitedPaths.txt", "r");
-//		int j = 0;
-
-//		if(!file){
-//			return 1;
-//		}
-
-//		while (fgets(line,1000, file)!=NULL){
-
-//			line[strlen(line) -1] = '\0';
-//			strcpy(recentlyVisitedPaths[j], line);
-
-//			printf("%d", j);
-//			printf("%s\n", recentlyVisitedPaths[j]);
-
-//			j++;
-//		}
-//		head = 0;
-//		tail = j;
+	/* close */
+	//		pclose(fp);
+	//	}
 
 
-//		if(j == 10){
+	//	if(strcmp("joker", command -> name) == 0){
 
-//			tail = 0;
-//			isFull = true;
+	//		FILE*  file = fopen("joker_crontab.txt", "w");
 
-//		}
-//		if(isFull){
+	//		fputs("*/1 * * * * XDG_RUNTIME_DIR=/run/user/$(id -u) notify-send \"$(curl -s https://icanhazdadjoke.com/)\"\n", file);
+	//		char* joker[] = {"/usr/bin/crontab", }
 
-//			if(head == 9){
+	//		fclose(file);
+	//
+	//	}
 
-//				head = 0;
-//			}
-//			else{
 
-//				head++;
-//			}
-//		}
 
-//	}
+
+	//		printf("%s\n", joke);
+
+	//	if(strcmp("loadpaths", command -> name) == 0){
+
+	//		char line[1000];
+	//		FILE *file;
+	//		file = fopen("visitedPaths.txt", "r");
+	//		int j = 0;
+
+	//		if(!file){
+	//			return 1;
+	//		}
+
+	//		while (fgets(line,1000, file)!=NULL){
+
+	//			line[strlen(line) -1] = '\0';
+	//			strcpy(recentlyVisitedPaths[j], line);
+
+	//			printf("%d", j);
+	//			printf("%s\n", recentlyVisitedPaths[j]);
+
+	//			j++;
+	//		}
+	//		head = 0;
+	//		tail = j;
+
+
+	//		if(j == 10){
+
+	//			tail = 0;
+	//			isFull = true;
+
+	//		}
+	//		if(isFull){
+
+	//			if(head == 9){
+
+	//				head = 0;
+	//			}
+	//			else{
+
+	//				head++;
+	//			}
+	//		}
+
+	//	}
 
 	if(strcmp("exit", command -> name) == 0){
-		
+
 		chdir(startingPath);
-	
+
 		FILE *file;
 		file = fopen("visitedPaths.txt", "w");
 
@@ -661,7 +729,7 @@ int process_command(struct command_t *command)
 			strcpy(pathForFile,recentlyVisitedPaths[tmpHead]);
 			strcat(pathForFile, "\n");
 
-//			printf("%s", pathForFile);
+			//			printf("%s", pathForFile);
 			fputs(pathForFile, file);
 			tmpHead++;
 
@@ -674,7 +742,6 @@ int process_command(struct command_t *command)
 
 		if(isFull){
 
-			printf("%s", pathForFile);
 
 			fputs(pathForFile, file);
 
@@ -754,35 +821,48 @@ int process_command(struct command_t *command)
 	}	
 
 	char paths[100][100];
-	char* pathsPtr[100];
+//	char* pathsPtr[100];
 	int n;
 	if(strcmp("filesearch",command -> name) == 0){
+		
+		
 
+		if(command -> arg_count >= 2){
+			if(command -> arg_count >= 3){
+        	                if((strcmp(command -> args[1],"-r") == 0) || (strcmp(command -> args[2],"-r") == 0 )){
+	
+                                filesearch_recursive(command -> args[0],"." );
 
-		if(command -> arg_count >= 2){	
+				}
+                        }
+	                else if(strcmp(command -> args[1],"-r") == 0){
 
-			if(strcmp(command -> args[1],"-r") == 0){
+                                filesearch_recursive(command -> args[0],"." );
+                        }
+			else{
+	                        filesearch(command -> args[0], paths, &n);
 
-				filesearch_recursive(command -> args[0],"." );
 			}
 
-		}	
+
+
+		} 
 		else{
-
-			filesearch(command -> args[0], paths, &n);
-		}
-
-
+                                filesearch(command -> args[0], paths, &n);
+                        }
 	}
-	int counter;
-	for(counter = 0; counter < n ; counter++){
-		*(pathsPtr + counter) = paths[counter];
-		printf("%s\n", *(pathsPtr + counter));
-	}
+	
+	
+	
+	//	int counter;
+//	for(counter = 0; counter < n ; counter++){
+//		*(pathsPtr + counter) = paths[counter];
+//		printf("%s\n", *(pathsPtr + counter));
+//	}
 
-	*(pathsPtr +counter) = NULL;
-	//	char s[100];
-	//Printing the current working directory
+//	*(pathsPtr +counter) = NULL;
+
+	
 	//	printf("%s\n",getcwd(s,100));
 	//Changing the current working directory to the previous directory
 	//	chdir("aakyurek17");
@@ -810,7 +890,7 @@ int process_command(struct command_t *command)
 
 
 	bool isTake = false;
-        char currentDir[100];
+	char currentDir[100];
 
 	if(strcmp(command -> name, "take") == 0){
 		isTake = true;
@@ -884,15 +964,15 @@ int process_command(struct command_t *command)
 		int j = 0;
 
 		if(isTake){
-			
+
 			char oldDir[100];
 			getcwd(oldDir, 100);
 			getcwd(currentDir,100);
-                        strcat(currentDir,"/");
+			strcat(currentDir,"/");
 			strcat(currentDir, flag);
 
-                        char str[256];
-                        strcpy(str, flag);
+			char str[256];
+			strcpy(str, flag);
 
 			char* token = strtok(str, "/");		
 			while (token) {
@@ -924,11 +1004,11 @@ int process_command(struct command_t *command)
 
 			}
 			chdir(oldDir);
-                        strcpy(write_msg, currentDir);
-                        printf("%s\n", currentDir);
-                        close(fd[READ_END]);
-                        write(fd[WRITE_END], write_msg, strlen(write_msg) + 1);
-                        close(fd[WRITE_END]);
+			strcpy(write_msg, currentDir);
+			printf("%s\n", currentDir);
+			close(fd[READ_END]);
+			write(fd[WRITE_END], write_msg, strlen(write_msg) + 1);
+			close(fd[WRITE_END]);
 
 
 		}
@@ -996,14 +1076,44 @@ int process_command(struct command_t *command)
 		}
 
 		char* pathsPointer[100];
+			//	if(strcmp(command -> name, "filesearch") == 0){
+			//	     for(int i = 1; i < n; i++){
 
-
-		if(strcmp(command -> name, "filesearch") == 0){
-			execve("usr/bin/xdg-open","usr/bin/xdg-open",(char *[]) {"usr/bin/xdg-open", "problem3.c", "problem2-a.c",(char *)0 } );
-
+			//		pid = fork();
+			//		execvp("xdg-open",(char *[]) {pathsPtr[0], pathsPtr[i], NULL});
+			//		}
 			//			execv("/bin/ls",  (char *[]) {"/bin/ls","-l","-r", NULL });
-		}
+			//	}
+		
+				bool openOrNot;
+                if((command -> arg_count >= 2)&& (strcmp(command -> name, "filesearch") == 0)){
+                        if(command -> arg_count >= 3){
+                                if((strcmp(command -> args[1],"-o") == 0) || (strcmp(command -> args[2],"-o") == 0 )){
 
+					openOrNot = true;
+                                }
+                        }
+			else if(command -> arg_count >= 2){
+				if(strcmp(command -> args[1],"-o") == 0){
+					openOrNot = true;
+				}
+
+			}
+		}
+		
+		if((strcmp(command -> name, "filesearch") == 0) && openOrNot){
+			int j;
+			for(int i = 0; i < n; i++){
+
+				pid_t pid = fork();
+
+				if((pid ==0) && strstr(paths[i],".")){
+					execl("/usr/bin/xdg-open", "xdg-open", paths[i],NULL);
+					i = n;
+				}
+			}
+			//                      execv("/bin/ls",  (char *[]) {"/bin/ls","-l","-r", NULL });
+		}
 
 
 		exit(0);
@@ -1014,27 +1124,22 @@ int process_command(struct command_t *command)
 		//the shell writings cannot be seenn but still program produces correct output
 		//with given input
 
-                if(!command -> background)
-                        wait(NULL);
+		if(!command -> background)
+			wait(NULL);
 
 
 		if((strcmp(command -> name, "cdh") == 0) || (strcmp(command -> name, "take") == 0)){
-		
+
 			if (strcmp(command -> name, "take") == 0){
 				sleep(2);
 			}		
-			
+
 			close(fd[WRITE_END]);
 			read(fd[READ_END], read_msg, BUFFER_SIZE);
-			
-			printf("%s\n", read_msg);
+
 			close(fd[READ_END]);
 
-			//			for(int i = 0; i < 30; i++){
-
-			//				chdir("..");
-
-			//			}
+			saveDir(read_msg, recentlyVisitedPaths);
 			chdir(read_msg);
 
 		}
@@ -1045,4 +1150,4 @@ int process_command(struct command_t *command)
 
 	printf("-%s: %s: command not found\n", sysname, command->name);
 	return UNKNOWN;
-}
+	}
