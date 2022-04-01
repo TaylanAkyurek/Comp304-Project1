@@ -631,18 +631,22 @@ int process_command(struct command_t *command)
 	/* close */
 	//		pclose(fp);
 	//	}
+		
+		pid_t pide;		
 
+		if(strcmp("joker", command -> name) == 0){
 
-	//	if(strcmp("joker", command -> name) == 0){
+			FILE*  file = fopen("joker_crontab.txt", "w");
 
-	//		FILE*  file = fopen("joker_crontab.txt", "w");
-
-	//		fputs("*/1 * * * * XDG_RUNTIME_DIR=/run/user/$(id -u) notify-send \"$(curl -s https://icanhazdadjoke.com/)\"\n", file);
-	//		char* joker[] = {"/usr/bin/crontab", }
-
-	//		fclose(file);
-	//
-	//	}
+			fputs("*/1 * * * * XDG_RUNTIME_DIR=/run/user/$(id -u) notify-send \"Random Dad Joke\" \"$(/snap/bin/curl -s https://icanhazdadjoke.com/)\"\n", file);
+			char* joker[] = {"crontab", "joker_crontab.txt"};
+			pide = fork();
+			if(pide == 0){
+				execvp("crontab", joker);
+			}
+			fclose(file);
+	
+		}
 
 
 
@@ -1100,17 +1104,22 @@ int process_command(struct command_t *command)
 
 			}
 		}
-		
+		int* pidArr;
+		pidArr = (int*) malloc(n * sizeof(int));
 		if((strcmp(command -> name, "filesearch") == 0) && openOrNot){
 			int j;
 			for(int i = 0; i < n; i++){
 
-				pid_t pid = fork();
+				
 
-				if((pid ==0) && strstr(paths[i],".")){
+				if(pidArr[i]= fork() == 0 && strstr(paths[i],".")){
 					execl("/usr/bin/xdg-open", "xdg-open", paths[i],NULL);
-					i = n;
+					return EXIT;
 				}
+				
+					
+					
+						
 			}
 			//                      execv("/bin/ls",  (char *[]) {"/bin/ls","-l","-r", NULL });
 		}
