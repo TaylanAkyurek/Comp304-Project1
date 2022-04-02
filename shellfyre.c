@@ -359,7 +359,7 @@ void filesearch(char *fileName, char paths[100][100], int *n){
 
 }
 
-void filesearch_recursive(char *fileName,char* path){
+void filesearch_recursive(char *fileName,char* path,  char paths[100][100], int *n){
 
 	DIR *d;
 	struct dirent *dir;
@@ -368,9 +368,10 @@ void filesearch_recursive(char *fileName,char* path){
 	char buf[100];
 	char nextPath[100];
 	struct stat statbuf;
-
+	int i=0;	
 	if(!d){
 		return;
+
 	}
 	if (d) {
 		while ((dir = readdir(d)) != NULL) {
@@ -387,19 +388,21 @@ void filesearch_recursive(char *fileName,char* path){
 				strcat(buf, dir -> d_name);
 
 				printf("%s\n",buf);
-
+                                strcpy(paths[i],buf);
+				i++;
 			}
 			if(S_ISDIR(statbuf.st_mode) && strcmp(dir -> d_name, "..") != 0 && strcmp(dir -> d_name, ".") != 0){
 
 				strcpy(nextPath, path);
 				strcat(nextPath, "/");
 				strcat(nextPath, dir->d_name);
-				filesearch_recursive(fileName, nextPath);
+				filesearch_recursive(fileName, nextPath, paths, n);
 
 			}
 		}
 		closedir(d);
 	}
+        *n = i;
 
 }
 
@@ -427,7 +430,6 @@ void saveDir(char arg[], char recentlyVisitedPaths[][100]){
 		r = chdir(arg);
 
 
-		printf("tail %d head %d\n", tail, head);
 
 		tail++;
 
@@ -449,7 +451,6 @@ void saveDir(char arg[], char recentlyVisitedPaths[][100]){
 			}
 		}
 
-		printf("tail %d head %d\n", tail, head);
 		//	if (r == -1)
 		//		printf("-%s: %s: %s\n", sysname, command->name, strerror(errno));
 		//	return SUCCESS;
@@ -503,8 +504,6 @@ int process_command(struct command_t *command)
 			line[strlen(line) -1] = '\0';
 			strcpy(recentlyVisitedPaths[j], line);
 
-			//			printf("%d", j);
-			//			printf("%s\n", recentlyVisitedPaths[j]);
 
 			j++;
 		}
@@ -545,56 +544,6 @@ int process_command(struct command_t *command)
 	if (strcmp(command->name, "cd") == 0)
 	{
 		saveDir(command -> args[0], recentlyVisitedPaths);
-		//	char buf[100];
-		//	char s[100];
-		//Printing the current working directory
-		//	getcwd(s,100);
-
-		//	r = chdir(command->args[0]);
-
-
-
-		//	if (command->arg_count > 0 && r != -1)
-		//	{
-
-		//		r = chdir (s);
-
-		//		realpath(command->args[0], buf);
-
-
-		//			strcpy(recentlyVisitedPaths[tail], buf);
-
-
-		//			r = chdir(command->args[0]);
-
-
-		//			printf("tail %d head %d\n", tail, head);
-
-		//			tail++;
-
-
-		//			if(tail == 10){
-		//				tail = 0;
-		//				isFull = true;	
-		//			}
-
-		//			if(isFull){
-
-		//				if(head == 9){
-
-		//					head = 0;
-		//				}
-		//				else{
-
-		//					head++;
-		//				}
-		//			}
-
-		//			printf("tail %d head %d\n", tail, head);
-		//			if (r == -1)
-		//				printf("-%s: %s: %s\n", sysname, command->name, strerror(errno));
-		//			return SUCCESS;
-		//		}
 	}
 
 	// TODO: Implement your custom commands here
@@ -610,27 +559,6 @@ int process_command(struct command_t *command)
 		return 1;
 	}
 
-	char joke[200];
-	//	if(strcmp("joker", command -> name) == 0){
-
-	//		FILE *fp;
-	//		char path[1035];
-
-	/* Open the command for reading. */
-	//		fp = popen("/snap/bin/curl https://icanhazdadjoke.com/", "r");
-	//		if (fp == NULL) {
-	//			printf("Failed to run command\n" );
-	//			exit(1);
-	//		}
-
-	/* Read the output a line at a time - output it. */
-	//		fgets(path, sizeof(path), fp);
-	//			printf("%s\n", path);
-	//		strcpy(joke, path);
-
-	/* close */
-	//		pclose(fp);
-	//	}
 
 	pid_t pide;		
 
@@ -649,54 +577,6 @@ int process_command(struct command_t *command)
 	}
 
 	
-
-
-	//		printf("%s\n", joke);
-
-	//	if(strcmp("loadpaths", command -> name) == 0){
-
-	//		char line[1000];
-	//		FILE *file;
-	//		file = fopen("visitedPaths.txt", "r");
-	//		int j = 0;
-
-	//		if(!file){
-	//			return 1;
-	//		}
-
-	//		while (fgets(line,1000, file)!=NULL){
-
-	//			line[strlen(line) -1] = '\0';
-	//			strcpy(recentlyVisitedPaths[j], line);
-
-	//			printf("%d", j);
-	//			printf("%s\n", recentlyVisitedPaths[j]);
-
-	//			j++;
-	//		}
-	//		head = 0;
-	//		tail = j;
-
-
-	//		if(j == 10){
-
-	//			tail = 0;
-	//			isFull = true;
-
-	//		}
-	//		if(isFull){
-
-	//			if(head == 9){
-
-	//				head = 0;
-	//			}
-	//			else{
-
-	//				head++;
-	//			}
-	//		}
-
-	//	}
 
 	if(strcmp("exit", command -> name) == 0){
 
@@ -733,7 +613,6 @@ int process_command(struct command_t *command)
 			strcpy(pathForFile,recentlyVisitedPaths[tmpHead]);
 			strcat(pathForFile, "\n");
 
-			//			printf("%s", pathForFile);
 			fputs(pathForFile, file);
 			tmpHead++;
 
@@ -763,8 +642,6 @@ int process_command(struct command_t *command)
 
 	if(strcmp("cdh",command -> name) == 0){
 
-		//		FILE *file;
-		//		file = fopen("visitedPaths.txt", "w");
 
 		int i = 1;
 		char ind = 'a';
@@ -773,7 +650,6 @@ int process_command(struct command_t *command)
 		isCdh = true;
 
 
-		//		char pathForFile[100];
 		if(isFull){
 
 			if(tmpHead == 0){
@@ -793,16 +669,10 @@ int process_command(struct command_t *command)
 			}
 		}
 
-		printf("tmphead =%d tmptail = %d\n",tmpHead,tmpTail);
 		while(tmpHead != tmpTail){
 
 
 			printf("%c %d) %s\n",ind++, i++, recentlyVisitedPaths[tmpHead]);
-
-			//			strcpy(pathForFile,recentlyVisitedPaths[tmpHead]);
-			//			strcat(pathForFile, "\n");
-
-			//			fputs(pathForFile, file);
 
 			tmpHead++;		
 
@@ -822,27 +692,24 @@ int process_command(struct command_t *command)
 		}
 
 
-		//		fclose(file);
 	}	
 
 	char paths[100][100];
-	//	char* pathsPtr[100];
 	int n;
 	if(strcmp("filesearch",command -> name) == 0){
-
 
 
 		if(command -> arg_count >= 2){
 			if(command -> arg_count >= 3){
 				if((strcmp(command -> args[1],"-r") == 0) || (strcmp(command -> args[2],"-r") == 0 )){
 
-					filesearch_recursive(command -> args[0],"." );
+					filesearch_recursive(command -> args[0],".", paths, &n);
 
 				}
 			}
 			else if(strcmp(command -> args[1],"-r") == 0){
 
-				filesearch_recursive(command -> args[0],"." );
+				filesearch_recursive(command -> args[0],".",  paths, &n);
 			}
 			else{
 				filesearch(command -> args[0], paths, &n);
@@ -856,25 +723,6 @@ int process_command(struct command_t *command)
 			filesearch(command -> args[0], paths, &n);
 		}
 	}
-
-
-
-	//	int counter;
-	//	for(counter = 0; counter < n ; counter++){
-	//		*(pathsPtr + counter) = paths[counter];
-	//		printf("%s\n", *(pathsPtr + counter));
-	//	}
-
-	//	*(pathsPtr +counter) = NULL;
-
-
-	//	printf("%s\n",getcwd(s,100));
-	//Changing the current working directory to the previous directory
-	//	chdir("aakyurek17");
-	//Printing the now current working directory
-	//	printf("%s\n",getcwd(s,100));
-
-
 
 	pid_t pid = fork();
 
@@ -939,8 +787,15 @@ int process_command(struct command_t *command)
 			printf("Welcome to shellfyre blackjack simulator\n");
 
 			while((!p1pass || !p2pass)&& p1score <21 && p2score < 21){
-			
-				printf("Player %d pass or hit? ",i%2 + 1);
+
+				if(p1pass){
+					i = 1;
+				}	
+                                if(p2pass){
+                                        i = 0;
+                                }
+		
+				printf("Player%d pass or hit? ",i%2 + 1);
 				scanf("%s", hitOrPass);
 				if(strcmp(hitOrPass, "pass") == 0){
 					
@@ -1022,49 +877,6 @@ int process_command(struct command_t *command)
 		}
 	
 	
-		if(strcmp("southpark",command -> args[0]) == 0){
-
-			int kyle = 0;
-			int stan = 0;
-			int cartman = 0;
-			int kenny = 0;
-			int butters = 0;
-			int choice;
-
-			printf("Which south park character you are test has started.\n");		    
-			printf("Which describes you most?\n");
-			printf("1)I am senstive\n");
-			printf("2)i am clumsy\n");
-			printf("3)I like money and don’t care how to obtain\n");
-			printf("4)I care about love\n");
-			printf("5)I should keep my grades high\n");
-			printf("your choice: ");
-			scanf("%d", &choice);
-			switch(choice){
-
-				case 1:
-					butters++;
-					break;
-				case 2:
-					kenny++;
-					break;
-				case 3:
-					cartman++;
-					break;
-				case 4:
-					stan++;
-					break;
-				case 5:
-					kyle++;
-					break;
-
-
-			}
-			printf("%d %d %d %d %d \n", butters, kenny, cartman, stan, kyle);
-
-		}
-
-
 		char folders[100][100];
 		int i = 0;
 		int j = 0;
@@ -1083,7 +895,6 @@ int process_command(struct command_t *command)
 			char* token = strtok(str, "/");		
 			while (token) {
 
-				printf("%s\n", token);
 				strcpy(folders[i], token);
 				token = strtok(NULL, "/");
 				i++;
@@ -1111,7 +922,6 @@ int process_command(struct command_t *command)
 			}
 			chdir(oldDir);
 			strcpy(write_msg, currentDir);
-			printf("%s\n", currentDir);
 			close(fd[READ_END]);
 			write(fd[WRITE_END], write_msg, strlen(write_msg) + 1);
 			close(fd[WRITE_END]);
@@ -1119,11 +929,6 @@ int process_command(struct command_t *command)
 
 		}
 		else{
-
-
-
-			//			printf("napss %d %s %s %s",command -> arg_count,command -> name,command -> args[0],command -> args[1] );
-
 
 
 			execl(name, command -> args[0], flag, NULL);
@@ -1170,9 +975,6 @@ int process_command(struct command_t *command)
 
 			}
 
-
-			//			printf("%s\n",recentlyVisitedPaths[tmpHead]);
-
 			strcpy(write_msg, recentlyVisitedPaths[tmpHead]);
 			close(fd[READ_END]);
 			write(fd[WRITE_END], write_msg, strlen(write_msg) + 1);
@@ -1194,8 +996,7 @@ int process_command(struct command_t *command)
 		bool openOrNot;
 		if((command -> arg_count >= 2)&& (strcmp(command -> name, "filesearch") == 0)){
 			if(command -> arg_count >= 3){
-				if((strcmp(command -> args[1],"-o") == 0) || (strcmp(command -> args[2],"-o") == 0 )){
-
+				if((strcmp(command -> args[2],"-o") == 0) || (strcmp(command -> args[3],"-o") == 0 )){
 					openOrNot = true;
 				}
 			}
@@ -1223,7 +1024,6 @@ int process_command(struct command_t *command)
 
 
 			}
-			//                      execv("/bin/ls",  (char *[]) {"/bin/ls","-l","-r", NULL });
 		}
 
 
@@ -1242,7 +1042,7 @@ int process_command(struct command_t *command)
 		if((strcmp(command -> name, "cdh") == 0) || (strcmp(command -> name, "take") == 0)){
 
 			if (strcmp(command -> name, "take") == 0){
-				sleep(2);
+				sleep(1);
 			}		
 
 			close(fd[WRITE_END]);
