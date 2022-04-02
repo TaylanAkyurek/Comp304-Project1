@@ -748,9 +748,11 @@ int process_command(struct command_t *command)
 
 	bool isTake = false;
 	char currentDir[100];
-
+	
+	
 	if(strcmp(command -> name, "take") == 0){
 		isTake = true;
+		flag  = command -> args[0];
 	}
 
 
