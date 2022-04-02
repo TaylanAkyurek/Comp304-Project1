@@ -1,4 +1,3 @@
-
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <dirent.h> 
@@ -11,6 +10,7 @@
 #include <stdbool.h>
 #include <errno.h>
 #include <ctype.h>
+#include <time.h>
 
 const char *sysname = "shellfyre";
 #define BUFFER_SIZE 100
@@ -450,9 +450,9 @@ void saveDir(char arg[], char recentlyVisitedPaths[][100]){
 		}
 
 		printf("tail %d head %d\n", tail, head);
-	//	if (r == -1)
-	//		printf("-%s: %s: %s\n", sysname, command->name, strerror(errno));
-	//	return SUCCESS;
+		//	if (r == -1)
+		//		printf("-%s: %s: %s\n", sysname, command->name, strerror(errno));
+		//	return SUCCESS;
 	}
 
 }
@@ -545,56 +545,56 @@ int process_command(struct command_t *command)
 	if (strcmp(command->name, "cd") == 0)
 	{
 		saveDir(command -> args[0], recentlyVisitedPaths);
-	//	char buf[100];
-	//	char s[100];
+		//	char buf[100];
+		//	char s[100];
 		//Printing the current working directory
-	//	getcwd(s,100);
+		//	getcwd(s,100);
 
-	//	r = chdir(command->args[0]);
-
-
-
-	//	if (command->arg_count > 0 && r != -1)
-	//	{
-
-	//		r = chdir (s);
-
-	//		realpath(command->args[0], buf);
+		//	r = chdir(command->args[0]);
 
 
-//			strcpy(recentlyVisitedPaths[tail], buf);
+
+		//	if (command->arg_count > 0 && r != -1)
+		//	{
+
+		//		r = chdir (s);
+
+		//		realpath(command->args[0], buf);
 
 
-//			r = chdir(command->args[0]);
+		//			strcpy(recentlyVisitedPaths[tail], buf);
 
 
-//			printf("tail %d head %d\n", tail, head);
-
-//			tail++;
+		//			r = chdir(command->args[0]);
 
 
-//			if(tail == 10){
-//				tail = 0;
-//				isFull = true;	
-//			}
+		//			printf("tail %d head %d\n", tail, head);
 
-//			if(isFull){
+		//			tail++;
 
-//				if(head == 9){
 
-//					head = 0;
-//				}
-//				else{
+		//			if(tail == 10){
+		//				tail = 0;
+		//				isFull = true;	
+		//			}
 
-//					head++;
-//				}
-//			}
+		//			if(isFull){
 
-//			printf("tail %d head %d\n", tail, head);
-//			if (r == -1)
-//				printf("-%s: %s: %s\n", sysname, command->name, strerror(errno));
-//			return SUCCESS;
-//		}
+		//				if(head == 9){
+
+		//					head = 0;
+		//				}
+		//				else{
+
+		//					head++;
+		//				}
+		//			}
+
+		//			printf("tail %d head %d\n", tail, head);
+		//			if (r == -1)
+		//				printf("-%s: %s: %s\n", sysname, command->name, strerror(errno));
+		//			return SUCCESS;
+		//		}
 	}
 
 	// TODO: Implement your custom commands here
@@ -631,24 +631,24 @@ int process_command(struct command_t *command)
 	/* close */
 	//		pclose(fp);
 	//	}
-		
-		pid_t pide;		
 
-		if(strcmp("joker", command -> name) == 0){
+	pid_t pide;		
 
-			FILE*  file = fopen("joker_crontab.txt", "w");
+	if(strcmp("joker", command -> name) == 0){
 
-			fputs("*/1 * * * * XDG_RUNTIME_DIR=/run/user/$(id -u) notify-send \"Random Dad Joke\" \"$(/snap/bin/curl -s https://icanhazdadjoke.com/)\"\n", file);
-			char* joker[] = {"crontab", "joker_crontab.txt"};
-			pide = fork();
-			if(pide == 0){
-				execvp("crontab", joker);
-			}
-			fclose(file);
-	
+		FILE*  file = fopen("joker_crontab.txt", "w");
+
+		fputs("*/1 * * * * XDG_RUNTIME_DIR=/run/user/$(id -u) notify-send \"Random Dad Joke\" \"$(/snap/bin/curl -s https://icanhazdadjoke.com/)\"\n", file);
+		char* joker[] = {"crontab", "joker_crontab.txt"};
+		pide = fork();
+		if(pide == 0){
+			execvp("crontab", joker);
 		}
+		fclose(file);
 
+	}
 
+	
 
 
 	//		printf("%s\n", joke);
@@ -772,6 +772,7 @@ int process_command(struct command_t *command)
 		int tmpTail = tail;
 		isCdh = true;
 
+
 		//		char pathForFile[100];
 		if(isFull){
 
@@ -825,26 +826,26 @@ int process_command(struct command_t *command)
 	}	
 
 	char paths[100][100];
-//	char* pathsPtr[100];
+	//	char* pathsPtr[100];
 	int n;
 	if(strcmp("filesearch",command -> name) == 0){
-		
-		
+
+
 
 		if(command -> arg_count >= 2){
 			if(command -> arg_count >= 3){
-        	                if((strcmp(command -> args[1],"-r") == 0) || (strcmp(command -> args[2],"-r") == 0 )){
-	
-                                filesearch_recursive(command -> args[0],"." );
+				if((strcmp(command -> args[1],"-r") == 0) || (strcmp(command -> args[2],"-r") == 0 )){
+
+					filesearch_recursive(command -> args[0],"." );
 
 				}
-                        }
-	                else if(strcmp(command -> args[1],"-r") == 0){
+			}
+			else if(strcmp(command -> args[1],"-r") == 0){
 
-                                filesearch_recursive(command -> args[0],"." );
-                        }
+				filesearch_recursive(command -> args[0],"." );
+			}
 			else{
-	                        filesearch(command -> args[0], paths, &n);
+				filesearch(command -> args[0], paths, &n);
 
 			}
 
@@ -852,21 +853,21 @@ int process_command(struct command_t *command)
 
 		} 
 		else{
-                                filesearch(command -> args[0], paths, &n);
-                        }
+			filesearch(command -> args[0], paths, &n);
+		}
 	}
-	
-	
-	
+
+
+
 	//	int counter;
-//	for(counter = 0; counter < n ; counter++){
-//		*(pathsPtr + counter) = paths[counter];
-//		printf("%s\n", *(pathsPtr + counter));
-//	}
+	//	for(counter = 0; counter < n ; counter++){
+	//		*(pathsPtr + counter) = paths[counter];
+	//		printf("%s\n", *(pathsPtr + counter));
+	//	}
 
-//	*(pathsPtr +counter) = NULL;
+	//	*(pathsPtr +counter) = NULL;
 
-	
+
 	//	printf("%s\n",getcwd(s,100));
 	//Changing the current working directory to the previous directory
 	//	chdir("aakyurek17");
@@ -919,7 +920,108 @@ int process_command(struct command_t *command)
 		command->args[command->arg_count - 1] = NULL;
 
 		/// TODO: do your own exec with path resolving using execv()
+		
+		if(strcmp("blackjack",command -> args[0]) == 0){
+		
+			int p1score;
+			int p2score;
+			int randomNum;
+			int scoreToAdd;
 
+			char hitOrPass[30];
+			
+			int i = 0;
+
+			bool p1pass = false;
+			bool p2pass = false;
+			
+			
+			printf("Welcome to shellfyre blackjack simulator\n");
+
+			while((!p1pass || !p2pass)&& p1score <21 && p2score < 21){
+			
+				printf("Player %d pass or hit? ",i%2 + 1);
+				scanf("%s", hitOrPass);
+				if(strcmp(hitOrPass, "pass") == 0){
+					
+					if(i%2 == 0){
+						p1pass = true;
+					}
+					if(i%2 == 1){
+                                                p2pass = true;
+                                        }
+
+					i++;
+
+				}
+				else if(strcmp(hitOrPass, "hit") == 0){
+			                
+					srand(time(0));
+		
+					randomNum = (rand() % (13)) + 1;	
+					
+					if(randomNum == 1){
+						
+						scoreToAdd = 11;
+					}
+					else if(randomNum == 10 || randomNum == 11 || randomNum == 12 || randomNum == 13){
+						
+						scoreToAdd = 10;
+					}
+					else{
+						scoreToAdd = randomNum;
+					}
+
+
+                                        if(i%2 == 0){
+	                                       
+                                                p1score+= scoreToAdd;
+
+						printf("Player1 score: %d\n",p1score);
+
+                                        }
+					if(i%2 == 1){
+
+						p2score+= scoreToAdd;
+	                                        
+						printf("Player2 score: %d\n",p2score);
+					}
+					
+					
+					i++;
+				}
+				
+				
+
+			}
+
+			printf("Player1 final score: %d\n", p1score);
+			printf("Player2 final score: %d\n", p2score);
+
+			if(p1score > 21){
+				
+				printf("Player2 wins\n");
+			}
+			else if(p2score > 21){
+				
+				printf("Player1 wins\n");
+			}
+			else if (p1score > p2score){
+                                printf("Player1 wins\n");
+
+			}
+			else if(p2score > p1score){
+
+                                printf("Player2 wins\n");
+
+			}
+			else{
+				
+				printf("Tie");
+			}
+		}
+	
+	
 		if(strcmp("southpark",command -> args[0]) == 0){
 
 			int kyle = 0;
@@ -1080,23 +1182,23 @@ int process_command(struct command_t *command)
 		}
 
 		char* pathsPointer[100];
-			//	if(strcmp(command -> name, "filesearch") == 0){
-			//	     for(int i = 1; i < n; i++){
+		//	if(strcmp(command -> name, "filesearch") == 0){
+		//	     for(int i = 1; i < n; i++){
 
-			//		pid = fork();
-			//		execvp("xdg-open",(char *[]) {pathsPtr[0], pathsPtr[i], NULL});
-			//		}
-			//			execv("/bin/ls",  (char *[]) {"/bin/ls","-l","-r", NULL });
-			//	}
-		
-				bool openOrNot;
-                if((command -> arg_count >= 2)&& (strcmp(command -> name, "filesearch") == 0)){
-                        if(command -> arg_count >= 3){
-                                if((strcmp(command -> args[1],"-o") == 0) || (strcmp(command -> args[2],"-o") == 0 )){
+		//		pid = fork();
+		//		execvp("xdg-open",(char *[]) {pathsPtr[0], pathsPtr[i], NULL});
+		//		}
+		//			execv("/bin/ls",  (char *[]) {"/bin/ls","-l","-r", NULL });
+		//	}
+
+		bool openOrNot;
+		if((command -> arg_count >= 2)&& (strcmp(command -> name, "filesearch") == 0)){
+			if(command -> arg_count >= 3){
+				if((strcmp(command -> args[1],"-o") == 0) || (strcmp(command -> args[2],"-o") == 0 )){
 
 					openOrNot = true;
-                                }
-                        }
+				}
+			}
 			else if(command -> arg_count >= 2){
 				if(strcmp(command -> args[1],"-o") == 0){
 					openOrNot = true;
@@ -1110,16 +1212,16 @@ int process_command(struct command_t *command)
 			int j;
 			for(int i = 0; i < n; i++){
 
-				
+
 
 				if(pidArr[i]= fork() == 0 && strstr(paths[i],".")){
 					execl("/usr/bin/xdg-open", "xdg-open", paths[i],NULL);
 					return EXIT;
 				}
-				
-					
-					
-						
+
+
+
+
 			}
 			//                      execv("/bin/ls",  (char *[]) {"/bin/ls","-l","-r", NULL });
 		}
@@ -1159,4 +1261,4 @@ int process_command(struct command_t *command)
 
 	printf("-%s: %s: command not found\n", sysname, command->name);
 	return UNKNOWN;
-	}
+}
