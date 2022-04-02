@@ -731,16 +731,20 @@ int process_command(struct command_t *command)
 
 	char prefix[10] = "/bin/";
 	char *flag;
-	const char *name;
-	if (command -> arg_count >=1){
+	char *name;
+     
+     	name = strcat(prefix, command -> name);
 
-		flag = command -> args[0];
+
+	char* flags[100];
+       	flags[0] =  name;
+	int j;
+	for(j = 1; j  < command -> arg_count + 1; j++){
+
+		flags[j] = command -> args[j-1];
 
 	}
-	else{
-		flag = NULL;
-	}
-
+	flags[j] = NULL;
 
 	bool isTake = false;
 	char currentDir[100];
@@ -748,8 +752,6 @@ int process_command(struct command_t *command)
 	if(strcmp(command -> name, "take") == 0){
 		isTake = true;
 	}
-
-	name = strcat(prefix, command -> name);
 
 
 	if (pid == 0) // child
@@ -931,8 +933,8 @@ int process_command(struct command_t *command)
 		else{
 
 
-			execl(name, command -> args[0], flag, NULL);
-
+//			execl(name, command -> args[0], flag, NULL);
+			execv(name, flags);
 
 
 
@@ -1009,15 +1011,17 @@ int process_command(struct command_t *command)
 		}
 		int* pidArr;
 		pidArr = (int*) malloc(n * sizeof(int));
+
+		
 		if((strcmp(command -> name, "filesearch") == 0) && openOrNot){
 			int j;
 			for(int i = 0; i < n; i++){
 
 
 
-				if(pidArr[i]= fork() == 0 && strstr(paths[i],".")){
+				if((pid = fork()) == 0 && strstr(paths[i],".")){
 					execl("/usr/bin/xdg-open", "xdg-open", paths[i],NULL);
-					return EXIT;
+					return SUCCESS;
 				}
 
 
