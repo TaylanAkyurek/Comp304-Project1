@@ -566,11 +566,13 @@ int process_command(struct command_t *command)
 
 		FILE*  file = fopen("joker_crontab.txt", "w");
 
-		fputs("*/1 * * * * XDG_RUNTIME_DIR=/run/user/$(id -u) notify-send \"Random Dad Joke\" \"$(/snap/bin/curl -s https://icanhazdadjoke.com/)\"\n", file);
+		fputs("*/15 * * * * XDG_RUNTIME_DIR=/run/user/$(id -u) notify-send \"Random Dad Joke\" \"$(/snap/bin/curl -s https://icanhazdadjoke.com/)\"\n", file);
+
 		char* joker[] = {"crontab", "joker_crontab.txt"};
+
 		pide = fork();
 		if(pide == 0){
-			execvp("crontab", joker);
+			execvp("crontab",joker);
 		}
 		fclose(file);
 
@@ -773,6 +775,8 @@ int process_command(struct command_t *command)
 
 		/// TODO: do your own exec with path resolving using execv()
 		
+
+
 		if(strcmp("blackjack",command -> args[0]) == 0){
 		
 			int p1score;
@@ -935,7 +939,6 @@ int process_command(struct command_t *command)
 		else{
 
 
-//			execl(name, command -> args[0], flag, NULL);
 			execv(name, flags);
 
 
@@ -988,15 +991,6 @@ int process_command(struct command_t *command)
 		}
 
 		char* pathsPointer[100];
-		//	if(strcmp(command -> name, "filesearch") == 0){
-		//	     for(int i = 1; i < n; i++){
-
-		//		pid = fork();
-		//		execvp("xdg-open",(char *[]) {pathsPtr[0], pathsPtr[i], NULL});
-		//		}
-		//			execv("/bin/ls",  (char *[]) {"/bin/ls","-l","-r", NULL });
-		//	}
-
 		bool openOrNot;
 		if((command -> arg_count >= 2)&& (strcmp(command -> name, "filesearch") == 0)){
 			if(command -> arg_count >= 3){
@@ -1023,7 +1017,7 @@ int process_command(struct command_t *command)
 
 				if((pid = fork()) == 0 && strstr(paths[i],".")){
 					execl("/usr/bin/xdg-open", "xdg-open", paths[i],NULL);
-					return SUCCESS;
+					exit(0);
 				}
 
 
